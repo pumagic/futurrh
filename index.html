@@ -52,8 +52,8 @@
         }
 
         button {
-            display: block;
-            margin: 20px auto;
+            display: inline-block;
+            margin: 20px 10px;
             padding: 10px 20px;
             font-size: 18px;
             cursor: pointer;
@@ -94,6 +94,16 @@
         .answer-label {
             margin-left: 10px;
         }
+
+        /* Masquer toutes les questions par défaut */
+        .question-container {
+            display: none;
+        }
+
+        /* Centrer les boutons */
+        .navigation-buttons {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -103,18 +113,26 @@
             Découvrez à quel métier RH du futur vous correspondez ! <br>
             Entrez vos informations pour un résultat personnalisé et partageable 📄.
         </p>
-        
-        <!-- Fusion des deux formulaires en un seul -->
-        <form id="quiz-form">
+
+        <!-- Formulaire pour le nom et le prénom -->
+        <form id="user-form">
             <label for="name">Nom :</label>
             <input type="text" id="name" placeholder="Entrez votre nom" required>
             <label for="surname">Prénom :</label>
             <input type="text" id="surname" placeholder="Entrez votre prénom" required>
-
-            <ol id="questions-list"></ol>
-            <button type="submit">Voir mon résultat</button>
+            <button type="button" id="start-quiz">Commencer le Quiz</button>
         </form>
-        
+
+        <!-- Zone pour afficher les questions -->
+        <form id="quiz-form" style="display:none;">
+            <div id="question-container"></div>
+            <div class="navigation-buttons">
+                <button type="button" id="prev-btn" style="display:none;">Précédent</button>
+                <button type="button" id="next-btn">Suivant</button>
+                <button type="submit" id="submit-btn" style="display:none;">Voir mon résultat</button>
+            </div>
+        </form>
+
         <div id="result"></div>
     </div>
 
@@ -373,43 +391,91 @@
                     { text: "Garantir une transparence et une éthique sans faille.", value: 1 }
                 ]
             }
-         ];
+        ];
 
-        function generateQuestions() {
-            const questionsList = document.getElementById("questions-list");
-            questions.forEach((q, index) => {
-                const li = document.createElement("li");
-                li.innerHTML = `
-                    <p class="question-text">${q.question}</p>
-                    ${q.answers.map(a => `
-                        <label class="answer-label">
-                            <input type="radio" name="q${index + 1}" value="${a.value}" required>
-                            ${a.text}
-                        </label>
-                    `).join('<br>')}
-                `;
-                questionsList.appendChild(li);
-            });
+        let currentQuestionIndex = 0;
+        const userAnswers = [];
+
+        const userForm = document.getElementById('user-form');
+        const quizForm = document.getElementById('quiz-form');
+        const questionContainer = document.getElementById('question-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-btn');
+        const startQuizBtn = document.getElementById('start-quiz');
+
+        startQuizBtn.addEventListener('click', () => {
+            // Vérifier si les champs Nom et Prénom sont remplis
+            const name = document.getElementById('name').value.trim();
+            const surname = document.getElementById('surname').value.trim();
+
+            if (name === '' || surname === '') {
+                alert('Veuillez remplir votre nom et prénom.');
+                return;
+            }
+
+            userForm.style.display = 'none';
+            quizForm.style.display = 'block';
+            showQuestion();
+        });
+
+        function showQuestion() {
+            const q = questions[currentQuestionIndex];
+            questionContainer.innerHTML = `
+                <p class="question-text">Question ${currentQuestionIndex + 1}/${questions.length}: ${q.question}</p>
+                ${q.answers.map((a, i) => `
+                    <label class="answer-label">
+                        <input type="radio" name="answer" value="${a.value}" ${userAnswers[currentQuestionIndex] == a.value ? 'checked' : ''}>
+                        ${a.text}
+                    </label>
+                `).join('<br>')}
+            `;
+
+            // Gérer l'affichage des boutons
+            prevBtn.style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
+            nextBtn.style.display = currentQuestionIndex < questions.length - 1 ? 'inline-block' : 'none';
+            submitBtn.style.display = currentQuestionIndex === questions.length - 1 ? 'inline-block' : 'none';
         }
 
-        generateQuestions();
+        prevBtn.addEventListener('click', () => {
+            saveAnswer();
+            currentQuestionIndex--;
+            showQuestion();
+        });
 
-        document.getElementById("quiz-form").addEventListener("submit", (e) => {
+        nextBtn.addEventListener('click', () => {
+            if (!saveAnswer()) return;
+            currentQuestionIndex++;
+            showQuestion();
+        });
+
+        function saveAnswer() {
+            const selectedOption = document.querySelector('input[name="answer"]:checked');
+            if (selectedOption) {
+                userAnswers[currentQuestionIndex] = selectedOption.value;
+                return true;
+            } else {
+                alert('Veuillez sélectionner une réponse.');
+                return false;
+            }
+        }
+
+        quizForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            if (!saveAnswer()) return;
 
             const scores = {
                 "Responsable Éthique de l'IA RH": 0, // value: 1
                 "Stratège de la Marque Employeur Digitale": 0, // value: 2
                 "Designer d'Expérience Collaborateur": 0, // value: 3
                 "Architecte des Talents Augmentés": 0, // value: 4
-                "Analyste RH Prédictif": 0 // Vous pouvez l'ajouter si nécessaire
+                "Analyste RH Prédictif": 0
             };
 
-            const answers = document.querySelectorAll("input[type='radio']:checked");
-            answers.forEach((answer) => {
-                const value = parseInt(answer.value);
+            userAnswers.forEach((value) => {
+                const val = parseInt(value);
                 const profileKeys = Object.keys(scores);
-                const profileKey = profileKeys[value - 1];
+                const profileKey = profileKeys[val - 1];
                 scores[profileKey]++;
             });
 
@@ -417,6 +483,8 @@
             Object.keys(scores).forEach((key) => {
                 scores[key] = (scores[key] / totalQuestions) * 100;
             });
+
+            quizForm.style.display = 'none';
 
             const resultDiv = document.getElementById("result");
             resultDiv.innerHTML = `
@@ -473,7 +541,6 @@
                 const canvas = document.getElementById("resultChart");
                 const chartImage = canvas.toDataURL("image/jpeg", 1.0);
 
-                // Vérifier si l'espace est suffisant sur la page, sinon ajouter une nouvelle page
                 if (yPosition + 100 > pdf.internal.pageSize.height) {
                     pdf.addPage();
                     yPosition = 20;

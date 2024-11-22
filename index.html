@@ -82,6 +82,18 @@
             margin-top: 20px;
             background-color: #36a2eb;
         }
+
+        /* Style pour les questions */
+        .question-text {
+            color: #ffce56; /* Couleur jaune pour une meilleure visibilité */
+            margin-bottom: 15px; /* Espace après chaque question */
+            font-weight: bold;
+        }
+
+        /* Style pour les réponses */
+        .answer-label {
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -108,25 +120,25 @@
 
     <script>
         const profiles = {
-            "Architecte des Talents Augmentés": {
-                description: "Expert dans l'intégration des technologies, vous aidez les collaborateurs à utiliser les outils IA pour décupler leur potentiel.",
-                skills: ["IA générative", "Analyse des données", "Créativité"],
-                training: ["Formation IA en RH", "Analyse des données avancée", "Certifications IA générative"]
+            "Responsable Éthique de l'IA RH": {
+                description: "Garant des pratiques éthiques, vous veillez à une utilisation responsable des technologies RH.",
+                skills: ["Éthique", "IA générative", "Leadership"],
+                training: ["Formation éthique et technologie", "Leadership transformationnel", "IA responsable"]
             },
             "Stratège de la Marque Employeur Digitale": {
                 description: "Vous créez une marque employeur irrésistible grâce au marketing RH et au digital.",
                 skills: ["Créativité", "Communication", "Littératie numérique"],
                 training: ["Formation en marketing RH", "Certifications en communication digitale", "Design de contenu"]
             },
-            "Responsable Éthique de l'IA RH": {
-                description: "Garant des pratiques éthiques, vous veillez à une utilisation responsable des technologies RH.",
-                skills: ["Éthique", "IA générative", "Leadership"],
-                training: ["Formation éthique et technologie", "Leadership transformationnel", "IA responsable"]
-            },
             "Designer d'Expérience Collaborateur": {
                 description: "Vous imaginez et créez des parcours collaborateurs inspirants et engageants.",
                 skills: ["Collaboration", "Intelligence émotionnelle", "Créativité"],
                 training: ["Design Thinking pour RH", "Intelligence émotionnelle", "Expérience employé (EX)"]
+            },
+            "Architecte des Talents Augmentés": {
+                description: "Expert dans l'intégration des technologies, vous aidez les collaborateurs à utiliser les outils IA pour décupler leur potentiel.",
+                skills: ["IA générative", "Analyse des données", "Créativité"],
+                training: ["Formation IA en RH", "Analyse des données avancée", "Certifications IA générative"]
             },
             "Analyste RH Prédictif": {
                 description: "Vous utilisez la puissance des données pour anticiper les besoins RH et piloter des stratégies gagnantes.",
@@ -361,17 +373,17 @@
                     { text: "Garantir une transparence et une éthique sans faille.", value: 1 }
                 ]
             }
-        ];
+         ];
 
         function generateQuestions() {
             const questionsList = document.getElementById("questions-list");
             questions.forEach((q, index) => {
                 const li = document.createElement("li");
                 li.innerHTML = `
-                    <p>${q.question}</p>
+                    <p class="question-text">${q.question}</p>
                     ${q.answers.map(a => `
-                        <label>
-                            <input type="radio" name="q${index + 1}" value="${a.value}">
+                        <label class="answer-label">
+                            <input type="radio" name="q${index + 1}" value="${a.value}" required>
                             ${a.text}
                         </label>
                     `).join('<br>')}
@@ -386,20 +398,22 @@
             e.preventDefault();
 
             const scores = {
-                "Architecte des Talents Augmentés": 0,
-                "Stratège de la Marque Employeur Digitale": 0,
-                "Responsable Éthique de l'IA RH": 0,
-                "Designer d'Expérience Collaborateur": 0,
-                "Analyste RH Prédictif": 0
+                "Responsable Éthique de l'IA RH": 0, // value: 1
+                "Stratège de la Marque Employeur Digitale": 0, // value: 2
+                "Designer d'Expérience Collaborateur": 0, // value: 3
+                "Architecte des Talents Augmentés": 0, // value: 4
+                "Analyste RH Prédictif": 0 // Vous pouvez l'ajouter si nécessaire
             };
 
             const answers = document.querySelectorAll("input[type='radio']:checked");
             answers.forEach((answer) => {
-                const profileKey = Object.keys(profiles)[answer.value - 1];
+                const value = parseInt(answer.value);
+                const profileKeys = Object.keys(scores);
+                const profileKey = profileKeys[value - 1];
                 scores[profileKey]++;
             });
 
-            const totalQuestions = answers.length;
+            const totalQuestions = questions.length;
             Object.keys(scores).forEach((key) => {
                 scores[key] = (scores[key] / totalQuestions) * 100;
             });
@@ -419,7 +433,7 @@
                     datasets: [{
                         label: "Correspondance (%)",
                         data: Object.values(scores),
-                        backgroundColor: ["#4caf50", "#36a2eb", "#ffce56", "#ff6384", "#9966ff"]
+                        backgroundColor: ["#ffce56", "#36a2eb", "#ff6384", "#4caf50", "#9966ff"]
                     }]
                 },
                 options: {
@@ -445,19 +459,32 @@
 
                 let yPosition = 50;
                 Object.entries(scores).forEach(([profile, score]) => {
+                    pdf.setFontSize(14);
                     pdf.text(`${profile}: ${score.toFixed(2)}%`, 10, yPosition);
-                    yPosition += 10;
+                    yPosition += 8;
                     pdf.setFontSize(12);
                     pdf.text(`Description: ${profiles[profile].description}`, 10, yPosition, { maxWidth: 190 });
-                    yPosition += 20;
+                    yPosition += 15;
                     pdf.text(`Pistes de formation: ${profiles[profile].training.join(", ")}`, 10, yPosition, { maxWidth: 190 });
                     yPosition += 20;
-                    pdf.setFontSize(16);
                 });
 
+                // Ajouter le graphique
                 const canvas = document.getElementById("resultChart");
                 const chartImage = canvas.toDataURL("image/jpeg", 1.0);
+
+                // Vérifier si l'espace est suffisant sur la page, sinon ajouter une nouvelle page
+                if (yPosition + 100 > pdf.internal.pageSize.height) {
+                    pdf.addPage();
+                    yPosition = 20;
+                }
+
                 pdf.addImage(chartImage, "JPEG", 10, yPosition, 180, 100);
+                yPosition += 110;
+
+                // Ajouter le texte en bas du PDF
+                pdf.setFontSize(12);
+                pdf.text("IDRH - @Igaël Derrida", 10, pdf.internal.pageSize.height - 10);
 
                 pdf.save("resultats_test_metiers_rh.pdf");
             });

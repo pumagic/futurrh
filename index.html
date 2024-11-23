@@ -7,6 +7,8 @@
     <!-- Bibliothèques nécessaires -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Pour l'affichage des icônes -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
         /* Styles CSS */
         body {
@@ -128,6 +130,12 @@
             color: #ffffff;
             font-weight: bold;
         }
+
+        /* Style pour les icônes des profils */
+        .profile-icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -162,6 +170,12 @@
             </div>
         </form>
 
+        <div id="career-goal-form" style="display:none;">
+            <label for="career-goal">Où souhaitez-vous évoluer dans les RH ? (optionnel)</label>
+            <input type="text" id="career-goal" placeholder="Décrivez vos objectifs de carrière">
+            <button type="button" id="see-result-btn">Voir mon résultat</button>
+        </div>
+
         <div id="result"></div>
     </div>
 
@@ -176,29 +190,39 @@
 
         const profilesInfo = {
             "Responsable Éthique de l'IA RH": {
-                description: "Garant des pratiques éthiques, vous veillez à une utilisation responsable des technologies RH.",
-                skills: ["Éthique", "IA générative", "Leadership"],
-                training: ["Formation éthique et technologie", "Leadership transformationnel", "IA responsable"]
+                description: "Vous êtes le gardien de l'éthique dans le monde numérique des RH ! 🛡️ Vous veillez à ce que l'utilisation des technologies respecte les valeurs humaines.",
+                sectors: "Grandes entreprises, ONG, institutions publiques",
+                missions: "Mettre en place des politiques éthiques, assurer la conformité légale, former les équipes aux bonnes pratiques",
+                challenges: "Équilibrer innovation et respect des valeurs, gérer les risques liés à l'IA",
+                icon: "fas fa-balance-scale" // Icône Font Awesome
             },
             "Stratège de la Marque Employeur Digitale": {
-                description: "Vous créez une marque employeur irrésistible grâce au marketing RH et au digital.",
-                skills: ["Créativité", "Communication", "Littératie numérique"],
-                training: ["Formation en marketing RH", "Certifications en communication digitale", "Design de contenu"]
+                description: "Créatif et connecté, vous êtes le magicien qui rend l'entreprise irrésistible aux yeux des talents ! 🎩✨",
+                sectors: "Startups, entreprises technologiques, agences de communication",
+                missions: "Développer la présence en ligne, créer des campagnes attractives, gérer les réseaux sociaux",
+                challenges: "Se démarquer dans un marché compétitif, suivre les tendances digitales",
+                icon: "fas fa-bullhorn"
             },
             "Designer d'Expérience Collaborateur": {
-                description: "Vous imaginez et créez des parcours collaborateurs inspirants et engageants.",
-                skills: ["Collaboration", "Intelligence émotionnelle", "Créativité"],
-                training: ["Design Thinking pour RH", "Intelligence émotionnelle", "Expérience employé (EX)"]
+                description: "Architecte du bonheur au travail, vous créez des environnements où chacun s'épanouit ! 🌟",
+                sectors: "Entreprises orientées culture d'entreprise, sociétés de conseil",
+                missions: "Améliorer l'engagement, organiser des événements internes, recueillir le feedback des employés",
+                challenges: "Adapter les initiatives aux besoins variés, mesurer l'impact sur la performance",
+                icon: "fas fa-users"
             },
             "Architecte des Talents Augmentés": {
-                description: "Expert dans l'intégration des technologies, vous aidez les collaborateurs à utiliser les outils IA pour décupler leur potentiel.",
-                skills: ["IA générative", "Analyse des données", "Créativité"],
-                training: ["Formation IA en RH", "Analyse des données avancée", "Certifications IA générative"]
+                description: "À la pointe de la technologie, vous équipez les collaborateurs d'outils futuristes pour booster leur potentiel ! 🚀",
+                sectors: "Entreprises innovantes, secteurs technologiques, industries 4.0",
+                missions: "Intégrer de nouvelles technologies, former les équipes aux outils IA, optimiser les processus",
+                challenges: "Gérer le changement, assurer l'adoption des technologies, maintenir la sécurité des données",
+                icon: "fas fa-robot"
             },
             "Analyste RH Prédictif": {
-                description: "Vous utilisez la puissance des données pour anticiper les besoins RH et piloter des stratégies gagnantes.",
-                skills: ["Analyse des données", "Résolution de problèmes", "Pensée critique"],
-                training: ["Analyse RH avancée", "Outils de prédiction", "Data visualisation"]
+                description: "Maître des données, vous anticipez les tendances et guidez les décisions stratégiques ! 📊🔮",
+                sectors: "Grandes entreprises, cabinets de conseil, institutions financières",
+                missions: "Analyser les données RH, prévoir les besoins en recrutement, optimiser les ressources",
+                challenges: "Assurer la qualité des données, interpréter correctement les analyses, communiquer les insights",
+                icon: "fas fa-chart-line"
             }
         };
 
@@ -441,6 +465,8 @@
         const submitBtn = document.getElementById('submit-btn');
         const startQuizBtn = document.getElementById('start-quiz');
         const progressBarFill = document.getElementById('progress-bar-fill');
+        const careerGoalForm = document.getElementById('career-goal-form');
+        const seeResultBtn = document.getElementById('see-result-btn');
 
         startQuizBtn.addEventListener('click', () => {
             // Vérifier si les champs Nom et Prénom sont remplis
@@ -511,6 +537,16 @@
             e.preventDefault();
             if (!saveAnswer()) return;
 
+            quizForm.style.display = 'none';
+            careerGoalForm.style.display = 'block';
+        });
+
+        seeResultBtn.addEventListener('click', () => {
+            const careerGoal = document.getElementById('career-goal').value.trim();
+            calculateResults(careerGoal);
+        });
+
+        function calculateResults(careerGoal) {
             const scores = {
                 "Responsable Éthique de l'IA RH": 0, // value: 1
                 "Stratège de la Marque Employeur Digitale": 0, // value: 2
@@ -530,14 +566,17 @@
                 scores[key] = (scores[key] / totalQuestions) * 100;
             });
 
-            quizForm.style.display = 'none';
+            careerGoalForm.style.display = 'none';
 
             const resultDiv = document.getElementById("result");
             resultDiv.innerHTML = `
                 <h2>Résultats du Test</h2>
+                <div id="profile-results"></div>
                 <canvas id="resultChart" width="400" height="400"></canvas>
                 <button class="download-btn" id="download-pdf">Télécharger le Résultat</button>
             `;
+
+            displayProfileResults(scores);
 
             const ctx = document.getElementById("resultChart").getContext("2d");
             const chart = new Chart(ctx, {
@@ -559,71 +598,129 @@
             });
 
             document.getElementById("download-pdf").addEventListener("click", () => {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF();
+                generatePDF(scores, careerGoal);
+            });
+        }
 
-                const name = document.getElementById('name').value;
-                const surname = document.getElementById('surname').value;
+        function displayProfileResults(scores) {
+            const profileResultsDiv = document.getElementById("profile-results");
+            const sortedProfiles = Object.entries(scores).sort((a, b) => b[1] - a[1]);
 
-                // Personnalisation du PDF
-                // Ajouter un fond coloré
-                pdf.setFillColor(18, 18, 18); // Couleur de fond sombre
-                pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
+            sortedProfiles.forEach(([profile, score]) => {
+                const info = profilesInfo[profile];
+                profileResultsDiv.innerHTML += `
+                    <div class="profile-result">
+                        <i class="profile-icon ${info.icon}"></i>
+                        <h3>${profile} - ${score.toFixed(2)}%</h3>
+                        <p>${info.description}</p>
+                        <p><strong>Secteurs :</strong> ${info.sectors}</p>
+                        <p><strong>Missions :</strong> ${info.missions}</p>
+                        <p><strong>Défis :</strong> ${info.challenges}</p>
+                    </div>
+                    <hr>
+                `;
+            });
+        }
 
-                pdf.setTextColor(255, 255, 255); // Texte en blanc
+        function generatePDF(scores, careerGoal) {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
 
-                pdf.setFontSize(22);
-                pdf.text("Résultats du Test - Métiers RH de Demain", pdf.internal.pageSize.width / 2, 20, { align: 'center' });
+            const name = document.getElementById('name').value;
+            const surname = document.getElementById('surname').value;
 
-                pdf.setFontSize(16);
-                pdf.text(`Nom : ${name}`, 10, 30);
-                pdf.text(`Prénom : ${surname}`, 10, 40);
-                pdf.text("Année : 2024", 10, 50);
+            // Personnalisation du PDF
+            // Ajouter un fond coloré
+            pdf.setFillColor(18, 18, 18); // Couleur de fond sombre
+            pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
 
-                let yPosition = 60;
+            pdf.setTextColor(255, 255, 255); // Texte en blanc
 
-                Object.entries(scores).forEach(([profile, score]) => {
-                    pdf.setFontSize(14);
-                    pdf.text(`${profile}: ${score.toFixed(2)}%`, 10, yPosition);
-                    yPosition += 8;
-                    pdf.setFontSize(12);
-                    pdf.text(`Description: ${profilesInfo[profile].description}`, 10, yPosition, { maxWidth: 190 });
-                    yPosition += 15;
-                    pdf.text(`Pistes de formation: ${profilesInfo[profile].training.join(", ")}`, 10, yPosition, { maxWidth: 190 });
-                    yPosition += 20;
+            pdf.setFontSize(22);
+            pdf.text("Résultats du Test - Métiers RH de Demain", pdf.internal.pageSize.width / 2, 20, { align: 'center' });
 
-                    // Vérifier si on doit ajouter une nouvelle page
-                    if (yPosition > pdf.internal.pageSize.height - 30) {
-                        pdf.addPage();
-                        pdf.setFillColor(18, 18, 18);
-                        pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
-                        pdf.setTextColor(255, 255, 255);
-                        yPosition = 20;
-                    }
-                });
+            pdf.setFontSize(16);
+            pdf.text(`Nom : ${name}`, 10, 30);
+            pdf.text(`Prénom : ${surname}`, 10, 40);
+            pdf.text("Année : 2024", 10, 50);
 
-                // Ajouter le graphique
-                const canvas = document.getElementById("resultChart");
-                const chartImage = canvas.toDataURL("image/jpeg", 1.0);
+            if (careerGoal) {
+                pdf.text(`Objectif de carrière : ${careerGoal}`, 10, 60);
+            }
 
-                if (yPosition + 100 > pdf.internal.pageSize.height) {
+            let yPosition = careerGoal ? 70 : 60;
+
+            const sortedProfiles = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+            sortedProfiles.forEach(([profile, score]) => {
+                const info = profilesInfo[profile];
+
+                pdf.setFontSize(14);
+                pdf.text(`${profile}: ${score.toFixed(2)}%`, 10, yPosition);
+                yPosition += 8;
+                pdf.setFontSize(12);
+                pdf.text(`Description: ${info.description}`, 10, yPosition, { maxWidth: 190 });
+                yPosition += 15;
+                pdf.text(`Secteurs: ${info.sectors}`, 10, yPosition, { maxWidth: 190 });
+                yPosition += 10;
+                pdf.text(`Missions: ${info.missions}`, 10, yPosition, { maxWidth: 190 });
+                yPosition += 15;
+                pdf.text(`Défis: ${info.challenges}`, 10, yPosition, { maxWidth: 190 });
+                yPosition += 20;
+
+                // Vérifier si on doit ajouter une nouvelle page
+                if (yPosition > pdf.internal.pageSize.height - 30) {
                     pdf.addPage();
                     pdf.setFillColor(18, 18, 18);
                     pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
                     pdf.setTextColor(255, 255, 255);
                     yPosition = 20;
                 }
-
-                pdf.addImage(chartImage, "JPEG", 10, yPosition, 180, 100);
-                yPosition += 110;
-
-                // Ajouter le texte en bas du PDF
-                pdf.setFontSize(12);
-                pdf.text("IDRH - @Igaël Derrida", 10, pdf.internal.pageSize.height - 10);
-
-                pdf.save("resultats_test_metiers_rh.pdf");
             });
-        });
+
+            // Ajouter le graphique
+            const canvas = document.getElementById("resultChart");
+            const chartImage = canvas.toDataURL("image/jpeg", 1.0);
+
+            if (yPosition + 100 > pdf.internal.pageSize.height) {
+                pdf.addPage();
+                pdf.setFillColor(18, 18, 18);
+                pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
+                pdf.setTextColor(255, 255, 255);
+                yPosition = 20;
+            }
+
+            pdf.addImage(chartImage, "JPEG", 10, yPosition, 180, 100);
+            yPosition += 110;
+
+            // Ajouter le texte en bas du PDF
+            pdf.setFontSize(12);
+            pdf.text("IDRH - @Igaël Derrida", 10, pdf.internal.pageSize.height - 10);
+
+            pdf.save("resultats_test_metiers_rh.pdf");
+        }
     </script>
 </body>
 </html>
+Emplacement pour les questions :
+Dans le code, vous trouverez cette section :
+
+javascript
+Copier le code
+const questions = [
+    // Insérez vos questions ici
+    // Assurez-vous que les valeurs 'value' des réponses vont de 1 à 5
+    // Exemple :
+    /*
+    {
+        question: "Votre question ici ?",
+        answers: [
+            { text: "Réponse pour Responsable Éthique de l'IA RH", value: 1 },
+            { text: "Réponse pour Stratège de la Marque Employeur Digitale", value: 2 },
+            { text: "Réponse pour Designer d'Expérience Collaborateur", value: 3 },
+            { text: "Réponse pour Architecte des Talents Augmentés", value: 4 },
+            { text: "Réponse pour Analyste RH Prédictif", value: 5 }
+        ]
+    },
+    */
+];

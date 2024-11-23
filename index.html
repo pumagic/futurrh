@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test des Métiers RH de Demain</title>
+    <!-- Bibliothèques nécessaires -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        /* Styles CSS */
         body {
             font-family: Arial, sans-serif;
             background-color: #121212;
@@ -85,8 +87,8 @@
 
         /* Style pour les questions */
         .question-text {
-            color: #ffce56; /* Couleur jaune pour une meilleure visibilité */
-            margin-bottom: 15px; /* Espace après chaque question */
+            color: #ffce56;
+            margin-bottom: 15px;
             font-weight: bold;
         }
 
@@ -103,6 +105,28 @@
         /* Centrer les boutons */
         .navigation-buttons {
             text-align: center;
+        }
+
+        /* Style pour la barre de progression */
+        .progress-bar {
+            width: 100%;
+            background-color: #555;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            height: 25px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -125,6 +149,11 @@
 
         <!-- Zone pour afficher les questions -->
         <form id="quiz-form" style="display:none;">
+            <!-- Barre de progression -->
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progress-bar-fill">0%</div>
+            </div>
+
             <div id="question-container"></div>
             <div class="navigation-buttons">
                 <button type="button" id="prev-btn" style="display:none;">Précédent</button>
@@ -138,6 +167,14 @@
 
     <script>
         const profiles = {
+            1: "Responsable Éthique de l'IA RH",
+            2: "Stratège de la Marque Employeur Digitale",
+            3: "Designer d'Expérience Collaborateur",
+            4: "Architecte des Talents Augmentés",
+            5: "Analyste RH Prédictif"
+        };
+
+        const profilesInfo = {
             "Responsable Éthique de l'IA RH": {
                 description: "Garant des pratiques éthiques, vous veillez à une utilisation responsable des technologies RH.",
                 skills: ["Éthique", "IA générative", "Leadership"],
@@ -391,7 +428,7 @@
                     { text: "Garantir une transparence et une éthique sans faille.", value: 1 }
                 ]
             }
-        ];
+              ];
 
         let currentQuestionIndex = 0;
         const userAnswers = [];
@@ -403,6 +440,7 @@
         const nextBtn = document.getElementById('next-btn');
         const submitBtn = document.getElementById('submit-btn');
         const startQuizBtn = document.getElementById('start-quiz');
+        const progressBarFill = document.getElementById('progress-bar-fill');
 
         startQuizBtn.addEventListener('click', () => {
             // Vérifier si les champs Nom et Prénom sont remplis
@@ -417,6 +455,7 @@
             userForm.style.display = 'none';
             quizForm.style.display = 'block';
             showQuestion();
+            updateProgressBar();
         });
 
         function showQuestion() {
@@ -437,16 +476,24 @@
             submitBtn.style.display = currentQuestionIndex === questions.length - 1 ? 'inline-block' : 'none';
         }
 
+        function updateProgressBar() {
+            const progressPercent = ((currentQuestionIndex) / questions.length) * 100;
+            progressBarFill.style.width = `${progressPercent}%`;
+            progressBarFill.textContent = `${Math.round(progressPercent)}%`;
+        }
+
         prevBtn.addEventListener('click', () => {
             saveAnswer();
             currentQuestionIndex--;
             showQuestion();
+            updateProgressBar();
         });
 
         nextBtn.addEventListener('click', () => {
             if (!saveAnswer()) return;
             currentQuestionIndex++;
             showQuestion();
+            updateProgressBar();
         });
 
         function saveAnswer() {
@@ -469,13 +516,12 @@
                 "Stratège de la Marque Employeur Digitale": 0, // value: 2
                 "Designer d'Expérience Collaborateur": 0, // value: 3
                 "Architecte des Talents Augmentés": 0, // value: 4
-                "Analyste RH Prédictif": 0
+                "Analyste RH Prédictif": 0 // value: 5
             };
 
             userAnswers.forEach((value) => {
                 const val = parseInt(value);
-                const profileKeys = Object.keys(scores);
-                const profileKey = profileKeys[val - 1];
+                const profileKey = profiles[val];
                 scores[profileKey]++;
             });
 
@@ -519,22 +565,41 @@
                 const name = document.getElementById('name').value;
                 const surname = document.getElementById('surname').value;
 
-                pdf.setFontSize(16);
-                pdf.text("Résultats du Test - Métiers RH de Demain", 10, 10);
-                pdf.text(`Nom : ${name}`, 10, 20);
-                pdf.text(`Prénom : ${surname}`, 10, 30);
-                pdf.text("Année : 2024", 10, 40);
+                // Personnalisation du PDF
+                // Ajouter un fond coloré
+                pdf.setFillColor(18, 18, 18); // Couleur de fond sombre
+                pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
 
-                let yPosition = 50;
+                pdf.setTextColor(255, 255, 255); // Texte en blanc
+
+                pdf.setFontSize(22);
+                pdf.text("Résultats du Test - Métiers RH de Demain", pdf.internal.pageSize.width / 2, 20, { align: 'center' });
+
+                pdf.setFontSize(16);
+                pdf.text(`Nom : ${name}`, 10, 30);
+                pdf.text(`Prénom : ${surname}`, 10, 40);
+                pdf.text("Année : 2024", 10, 50);
+
+                let yPosition = 60;
+
                 Object.entries(scores).forEach(([profile, score]) => {
                     pdf.setFontSize(14);
                     pdf.text(`${profile}: ${score.toFixed(2)}%`, 10, yPosition);
                     yPosition += 8;
                     pdf.setFontSize(12);
-                    pdf.text(`Description: ${profiles[profile].description}`, 10, yPosition, { maxWidth: 190 });
+                    pdf.text(`Description: ${profilesInfo[profile].description}`, 10, yPosition, { maxWidth: 190 });
                     yPosition += 15;
-                    pdf.text(`Pistes de formation: ${profiles[profile].training.join(", ")}`, 10, yPosition, { maxWidth: 190 });
+                    pdf.text(`Pistes de formation: ${profilesInfo[profile].training.join(", ")}`, 10, yPosition, { maxWidth: 190 });
                     yPosition += 20;
+
+                    // Vérifier si on doit ajouter une nouvelle page
+                    if (yPosition > pdf.internal.pageSize.height - 30) {
+                        pdf.addPage();
+                        pdf.setFillColor(18, 18, 18);
+                        pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
+                        pdf.setTextColor(255, 255, 255);
+                        yPosition = 20;
+                    }
                 });
 
                 // Ajouter le graphique
@@ -543,6 +608,9 @@
 
                 if (yPosition + 100 > pdf.internal.pageSize.height) {
                     pdf.addPage();
+                    pdf.setFillColor(18, 18, 18);
+                    pdf.rect(0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height, 'F');
+                    pdf.setTextColor(255, 255, 255);
                     yPosition = 20;
                 }
 

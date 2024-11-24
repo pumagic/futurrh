@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test des Métiers RH de Demain</title>
     <!-- Bibliothèques nécessaires -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
     <!-- Pour l'affichage des icônes -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous" defer></script>
     <style>
         /* Styles CSS */
         body {
@@ -97,6 +97,8 @@
         /* Style pour les réponses */
         .answer-label {
             margin-left: 10px;
+            margin-bottom: 5px;
+            display: block;
         }
 
         /* Masquer toutes les questions par défaut */
@@ -136,13 +138,22 @@
             font-size: 50px;
             margin-bottom: 10px;
         }
-    </style>
-    .answer-label {
-    margin-left: 10px; /* Déjà présent */
-    margin-bottom: 5px; /* Ajout pour réduire l'espace vertical entre les réponses */
-    display: block; /* Important pour assurer que chaque réponse commence sur une nouvelle ligne */
-}
 
+        /* Style pour les résultats des profils */
+        .profile-result {
+            text-align: left;
+            margin-bottom: 30px;
+        }
+
+        .profile-result h3 {
+            color: #4caf50;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #555;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -186,6 +197,7 @@
     </div>
 
     <script>
+        // Définition des profils (les questions seront ajoutées ultérieurement)
         const profiles = {
             1: "Responsable Éthique de l'IA RH",
             2: "Stratège de la Marque Employeur Digitale",
@@ -200,7 +212,7 @@
                 sectors: "Grandes entreprises, ONG, institutions publiques",
                 missions: "Mettre en place des politiques éthiques, assurer la conformité légale, former les équipes aux bonnes pratiques",
                 challenges: "Équilibrer innovation et respect des valeurs, gérer les risques liés à l'IA",
-                icon: "fas fa-balance-scale" // Icône Font Awesome
+                icon: "fas fa-balance-scale"
             },
             "Stratège de la Marque Employeur Digitale": {
                 description: "Créatif et connecté, vous êtes le magicien qui rend l'entreprise irrésistible aux yeux des talents ! 🎩✨",
@@ -231,261 +243,229 @@
                 icon: "fas fa-chart-line"
             }
         };
-
-       const questions = [
+const questions = [
     {
-        question: "Vous découvrez une nouvelle plateforme IA pour le recrutement. Que faites-vous ?",
+        question: "Si vous pouviez avoir un gadget futuriste pour faciliter votre travail RH, lequel choisiriez-vous ?",
         answers: [
-            { text: "J'évalue les bénéfices et les risques pour garantir une utilisation éthique.", value: 1 },
-            { text: "Je teste rapidement pour explorer ses possibilités innovantes.", value: 2 },
-            { text: "Je propose à l'équipe de collaborer pour l'intégrer efficacement.", value: 3 },
-            { text: "Je l'ajoute à mes outils pour optimiser les processus.", value: 4 },
-            { text: "J'analyse les données pour prédire son impact sur nos recrutements.", value: 5 }
+            { text: "Un traducteur universel d'émotions pour mieux comprendre les collaborateurs.", value: 3 },
+            { text: "Un casque de réalité augmentée pour analyser les données en temps réel.", value: 5 },
+            { text: "Un stylo magique qui signe des contrats éthiques automatiquement.", value: 1 },
+            { text: "Une baguette d'innovation pour créer des idées novatrices instantanément.", value: 2 },
+            { text: "Un robot assistant pour automatiser les tâches répétitives.", value: 4 }
         ]
     },
     {
-        question: "Votre priorité dans un projet RH technologique est :",
+        question: "Lors d'une journée de travail idéale, vous êtes le plus enthousiaste à l'idée de :",
         answers: [
-            { text: "Assurer que le projet respecte les standards éthiques.", value: 1 },
-            { text: "Introduire des innovations qui renforcent la marque employeur.", value: 2 },
-            { text: "Favoriser la collaboration entre les équipes impliquées.", value: 3 },
-            { text: "Automatiser les tâches pour gagner en efficacité.", value: 4 },
-            { text: "Utiliser les données pour anticiper les besoins futurs.", value: 5 }
+            { text: "Organiser un atelier collaboratif pour renforcer l'esprit d'équipe.", value: 3 },
+            { text: "Explorer de nouvelles technologies pour améliorer les processus RH.", value: 4 },
+            { text: "Analyser les tendances du marché pour anticiper les besoins futurs.", value: 5 },
+            { text: "Trouver des solutions créatives à des défis complexes.", value: 2 },
+            { text: "Assurer que toutes les pratiques sont alignées avec les valeurs éthiques.", value: 1 }
         ]
     },
     {
-        question: "Face à un problème complexe dans votre équipe, vous :",
+        question: "Si vous étiez responsable d'une initiative RH, laquelle lanceriez-vous en premier ?",
         answers: [
-            { text: "Analysez la situation pour trouver une solution éthique.", value: 1 },
-            { text: "Proposez une idée créative pour résoudre le problème.", value: 2 },
-            { text: "Organisez une session collaborative pour impliquer tout le monde.", value: 3 },
-            { text: "Mettez en place un outil technologique pour automatiser la solution.", value: 4 },
-            { text: "Étudiez les données disponibles pour identifier la cause profonde.", value: 5 }
+            { text: "Un programme d'innovation pour encourager les idées nouvelles.", value: 2 },
+            { text: "Une plateforme collaborative pour améliorer la communication interne.", value: 3 },
+            { text: "Un audit éthique pour garantir la transparence des processus.", value: 1 },
+            { text: "Une mise à jour technologique pour automatiser les tâches répétitives.", value: 4 },
+            { text: "Une analyse prédictive pour optimiser le recrutement.", value: 5 }
         ]
     },
     {
-        question: "Un collaborateur se sent dépassé par les outils numériques. Vous :",
+        question: "Lors d'une réunion, vous êtes celui qui :",
         answers: [
-            { text: "Vérifiez que les outils sont conformes aux principes éthiques et accessibles.", value: 1 },
-            { text: "Créez une formation innovante et ludique pour l'aider.", value: 2 },
-            { text: "Organisez un atelier collaboratif pour partager les bonnes pratiques.", value: 3 },
-            { text: "Simplifiez les processus avec des technologies plus intuitives.", value: 4 },
-            { text: "Analysez les données d'utilisation pour adapter les outils.", value: 5 }
+            { text: "Veille à ce que toutes les voix soient entendues et respectées.", value: 1 },
+            { text: "Propose des idées innovantes qui sortent des sentiers battus.", value: 2 },
+            { text: "Facilite la collaboration entre les participants.", value: 3 },
+            { text: "Présente des données et des analyses pour étayer les décisions.", value: 5 },
+            { text: "Suggère des outils technologiques pour améliorer l'efficacité.", value: 4 }
         ]
     },
     {
-        question: "Une marque employeur doit selon vous :",
+        question: "Face à un nouveau défi professionnel, vous préférez :",
         answers: [
-            { text: "Refléter des valeurs éthiques fortes.", value: 1 },
-            { text: "Être innovante et créative pour attirer les talents.", value: 2 },
-            { text: "Mettre en avant une culture de collaboration.", value: 3 },
-            { text: "Utiliser la technologie pour être omniprésente en ligne.", value: 4 },
-            { text: "S'appuyer sur des données pour cibler efficacement les candidats.", value: 5 }
+            { text: "Consulter les données passées pour prendre une décision éclairée.", value: 5 },
+            { text: "Brainstormer avec l'équipe pour trouver des solutions collaboratives.", value: 3 },
+            { text: "Chercher des moyens innovants de le surmonter.", value: 2 },
+            { text: "Vérifier que les actions envisagées respectent les normes éthiques.", value: 1 },
+            { text: "Rechercher des outils technologiques pouvant aider.", value: 4 }
         ]
     },
     {
-        question: "Vous devez présenter un projet IA à la direction. Votre axe est :",
+        question: "Votre succès professionnel est dû principalement à :",
         answers: [
-            { text: "Souligner l'importance de l'éthique dans l'utilisation de l'IA.", value: 1 },
-            { text: "Montrer comment l'IA peut renforcer notre image de marque innovante.", value: 2 },
-            { text: "Expliquer l'impact positif sur l'expérience collaborateur.", value: 3 },
-            { text: "Démontrer les gains d'efficacité grâce à l'automatisation.", value: 4 },
-            { text: "Présenter des prédictions basées sur des analyses de données.", value: 5 }
+            { text: "Votre capacité à innover constamment.", value: 2 },
+            { text: "Votre engagement envers l'éthique et l'intégrité.", value: 1 },
+            { text: "Votre aptitude à rassembler les gens.", value: 3 },
+            { text: "Votre expertise en technologie moderne.", value: 4 },
+            { text: "Votre talent pour analyser et interpréter les données.", value: 5 }
         ]
     },
     {
-        question: "Pour une décision RH complexe, vous vous fiez surtout à :",
+        question: "Si vous deviez écrire un livre sur les RH, il s'intitulerait :",
         answers: [
-            { text: "Des principes éthiques solides.", value: 1 },
-            { text: "Votre intuition créative.", value: 2 },
-            { text: "Les retours et ressentis des collaborateurs.", value: 3 },
-            { text: "Des outils technologiques pour automatiser la décision.", value: 4 },
-            { text: "Une analyse approfondie des données.", value: 5 }
+            { text: "« L'Éthique au Cœur des RH Modernes »", value: 1 },
+            { text: "« Innover pour Transformer les RH »", value: 2 },
+            { text: "« L'Art de la Collaboration en Entreprise »", value: 3 },
+            { text: "« Les Technologies qui Redéfinissent les RH »", value: 4 },
+            { text: "« Prédire l'Avenir des RH grâce aux Données »", value: 5 }
         ]
     },
     {
-        question: "Vous imaginez une expérience collaborateur idéale comme :",
+        question: "Un collègue vous demande conseil, vous êtes le plus susceptible de lui offrir :",
         answers: [
-            { text: "Basée sur le respect et l'éthique.", value: 1 },
-            { text: "Stimulante grâce à l'innovation constante.", value: 2 },
-            { text: "Enrichie par une forte collaboration entre tous.", value: 3 },
-            { text: "Optimisée par des technologies avancées.", value: 4 },
-            { text: "Personnalisée grâce à l'analyse des données.", value: 5 }
+            { text: "Des insights basés sur des analyses de données précises.", value: 5 },
+            { text: "Une solution technologique pour faciliter son travail.", value: 4 },
+            { text: "Un soutien pour développer une idée innovante.", value: 2 },
+            { text: "Une perspective éthique pour guider sa décision.", value: 1 },
+            { text: "Une opportunité de collaborer pour résoudre son problème.", value: 3 }
         ]
     },
     {
-        question: "Vous êtes chargé de recruter un talent clé pour un poste futuriste. Vous :",
+        question: "Votre environnement de travail idéal est :",
         answers: [
-            { text: "Évaluez l'alignement éthique du candidat avec l'entreprise.", value: 1 },
-            { text: "Cherchez des profils créatifs et visionnaires.", value: 2 },
-            { text: "Impliquez l'équipe pour choisir le meilleur candidat.", value: 3 },
-            { text: "Utilisez des outils d'IA pour filtrer les candidatures.", value: 4 },
-            { text: "Analysez les données pour identifier le profil idéal.", value: 5 }
+            { text: "Un espace high-tech avec les dernières innovations.", value: 4 },
+            { text: "Un lieu ouvert favorisant les échanges et la collaboration.", value: 3 },
+            { text: "Un bureau calme où vous pouvez analyser des données en profondeur.", value: 5 },
+            { text: "Un environnement dynamique encourageant la créativité.", value: 2 },
+            { text: "Un espace reflétant les valeurs éthiques de l'entreprise.", value: 1 }
         ]
     },
     {
-        question: "Un logiciel propose d'automatiser une tâche que vous réalisez manuellement. Que faites-vous ?",
+        question: "Si vous pouviez assister à une conférence, vous choisiriez :",
         answers: [
-            { text: "Vérifiez les implications éthiques de cette automatisation.", value: 1 },
-            { text: "Testez le logiciel pour voir s'il apporte une innovation notable.", value: 2 },
-            { text: "Consultez votre équipe pour recueillir leurs avis.", value: 3 },
-            { text: "L'adoptez pour améliorer l'efficacité.", value: 4 },
-            { text: "Analysez les données pour mesurer l'impact potentiel.", value: 5 }
+            { text: "« Les enjeux éthiques de l'IA dans les RH »", value: 1 },
+            { text: "« Innovations disruptives dans le monde du travail »", value: 2 },
+            { text: "« La collaboration comme levier de performance »", value: 3 },
+            { text: "« Technologies émergentes pour les professionnels RH »", value: 4 },
+            { text: "« L'analytique prédictive au service des RH »", value: 5 }
         ]
     },
     {
-        question: "Pour améliorer la marque employeur de votre entreprise, vous misez sur :",
+        question: "Lorsque vous travaillez sur un projet, vous appréciez le plus :",
         answers: [
-            { text: "Communiquer sur nos engagements éthiques.", value: 1 },
-            { text: "Lancer des campagnes innovantes et créatives.", value: 2 },
-            { text: "Valoriser les témoignages de nos collaborateurs.", value: 3 },
-            { text: "Optimiser notre présence en ligne grâce à la technologie.", value: 4 },
-            { text: "Utiliser des analyses pour cibler nos actions marketing.", value: 5 }
+            { text: "Garantir que chaque étape est en accord avec les principes éthiques.", value: 1 },
+            { text: "Introduire des idées novatrices pour améliorer le résultat.", value: 2 },
+            { text: "Collaborer étroitement avec une équipe multidisciplinaire.", value: 3 },
+            { text: "Utiliser des outils technologiques pour gagner en efficacité.", value: 4 },
+            { text: "Analyser les données pour optimiser les décisions.", value: 5 }
         ]
     },
     {
-        question: "Un employé signale une préoccupation éthique liée à l'IA. Vous :",
+        question: "Votre devise professionnelle pourrait être :",
         answers: [
-            { text: "Prenez le sujet très au sérieux et enquêtez immédiatement.", value: 1 },
-            { text: "Cherchez des solutions innovantes pour résoudre le problème.", value: 2 },
-            { text: "Organisez une réunion pour discuter collectivement.", value: 3 },
-            { text: "Examinez les paramètres technologiques pour corriger le problème.", value: 4 },
-            { text: "Analysez les données pour comprendre l'ampleur du souci.", value: 5 }
+            { text: "« L'innovation est la clé du progrès. »", value: 2 },
+            { text: "« Ensemble, nous allons plus loin. »", value: 3 },
+            { text: "« La technologie au service de l'humain. »", value: 4 },
+            { text: "« Les données racontent une histoire, sachons l'écouter. »", value: 5 },
+            { text: "« L'éthique guide chaque action. »", value: 1 }
         ]
     },
     {
-        question: "Un collaborateur vous propose une idée inattendue pour un projet. Vous :",
+        question: "En cas de désaccord au sein de l'équipe, vous êtes celui qui :",
         answers: [
-            { text: "Évaluez l'idée sous l'angle de l'éthique et des valeurs.", value: 1 },
-            { text: "Encouragez son esprit d'innovation.", value: 2 },
-            { text: "Invitez l'équipe à collaborer autour de cette idée.", value: 3 },
-            { text: "Étudiez comment la technologie peut soutenir cette idée.", value: 4 },
-            { text: "Analysez les données pour voir si l'idée est viable.", value: 5 }
+            { text: "Cherche une solution éthique acceptable pour tous.", value: 1 },
+            { text: "Propose une idée innovante pour sortir de l'impasse.", value: 2 },
+            { text: "Facilite la communication pour trouver un terrain d'entente.", value: 3 },
+            { text: "Suggère un outil technologique pour aider à résoudre le problème.", value: 4 },
+            { text: "Analyse les causes profondes à l'aide de données.", value: 5 }
         ]
     },
     {
-        question: "Vous devez recruter pour un poste impliquant une forte compétence IA. Vous cherchez :",
+        question: "Pour vous, le futur des RH est :",
         answers: [
-            { text: "Une personne sensible aux enjeux éthiques de l'IA.", value: 1 },
-            { text: "Un esprit créatif capable d'innover avec l'IA.", value: 2 },
-            { text: "Quelqu'un qui sait bien collaborer avec diverses équipes.", value: 3 },
-            { text: "Un expert technique maîtrisant les outils IA.", value: 4 },
-            { text: "Un analyste capable de tirer des insights des données.", value: 5 }
+            { text: "Un équilibre entre technologie et humanité.", value: 1 },
+            { text: "Un terrain fertile pour l'innovation constante.", value: 2 },
+            { text: "Une ère où la collaboration est au cœur de tout.", value: 3 },
+            { text: "Une transformation grâce aux avancées technologiques.", value: 4 },
+            { text: "Une gestion anticipative basée sur les données.", value: 5 }
         ]
     },
     {
-        question: "Pour rester à jour dans votre métier, vous :",
+        question: "Si vous pouviez maîtriser instantanément une nouvelle compétence, ce serait :",
         answers: [
-            { text: "Suivez les évolutions des réglementations et de l'éthique.", value: 1 },
-            { text: "Participez à des conférences sur les innovations RH.", value: 2 },
-            { text: "Échangez régulièrement avec vos collègues.", value: 3 },
-            { text: "Testez les dernières technologies disponibles.", value: 4 },
-            { text: "Analysez les tendances du marché grâce aux données.", value: 5 }
+            { text: "La capacité à analyser de vastes ensembles de données.", value: 5 },
+            { text: "La maîtrise des dernières technologies RH.", value: 4 },
+            { text: "L'art de fédérer des équipes diverses.", value: 3 },
+            { text: "Un génie créatif pour innover sans cesse.", value: 2 },
+            { text: "Une expertise approfondie en éthique professionnelle.", value: 1 }
         ]
     },
     {
-        question: "Lors d'un séminaire sur l'IA, vous êtes attiré par :",
+        question: "Lors d'un entretien avec un candidat, vous êtes attentif surtout à :",
         answers: [
-            { text: "Les discussions sur l'éthique de l'IA.", value: 1 },
-            { text: "Les présentations des dernières innovations.", value: 2 },
-            { text: "Les ateliers collaboratifs en groupe.", value: 3 },
-            { text: "Les démonstrations de nouveaux outils technologiques.", value: 4 },
-            { text: "Les sessions sur l'analyse prédictive des données.", value: 5 }
+            { text: "Son alignement avec les valeurs et l'éthique de l'entreprise.", value: 1 },
+            { text: "Sa capacité à apporter des idées innovantes.", value: 2 },
+            { text: "Ses aptitudes à travailler en équipe.", value: 3 },
+            { text: "Ses compétences techniques avancées.", value: 4 },
+            { text: "Sa compréhension des tendances du secteur.", value: 5 }
         ]
     },
     {
-        question: "Pour gérer un changement organisationnel, votre stratégie est :",
+        question: "Pour vous détendre après le travail, vous aimez :",
         answers: [
-            { text: "Assurer que le changement respecte nos valeurs éthiques.", value: 1 },
-            { text: "Inspirer les équipes avec une vision innovante.", value: 2 },
-            { text: "Favoriser la communication et la collaboration.", value: 3 },
-            { text: "Utiliser des technologies pour faciliter la transition.", value: 4 },
-            { text: "S'appuyer sur des données pour piloter le changement.", value: 5 }
+            { text: "Lire des articles sur les innovations futures.", value: 2 },
+            { text: "Participer à des jeux collaboratifs en ligne.", value: 3 },
+            { text: "Explorer de nouvelles applications technologiques.", value: 4 },
+            { text: "Analyser des statistiques sportives ou économiques.", value: 5 },
+            { text: "Engager des discussions sur des sujets éthiques.", value: 1 }
         ]
     },
     {
-        question: "Vous devez optimiser une expérience collaborateur. Votre focus est :",
+        question: "Votre rôle lors d'un projet inter-services est de :",
         answers: [
-            { text: "Renforcer l'éthique et la transparence dans les processus.", value: 1 },
-            { text: "Introduire des éléments innovants et stimulants.", value: 2 },
-            { text: "Améliorer la collaboration et le bien-être.", value: 3 },
-            { text: "Automatiser les tâches pour simplifier le quotidien.", value: 4 },
-            { text: "Personnaliser l'expérience grâce aux données collectées.", value: 5 }
+            { text: "Assurer que les objectifs respectent les normes éthiques.", value: 1 },
+            { text: "Stimuler l'innovation au sein de l'équipe.", value: 2 },
+            { text: "Faciliter la communication entre les différentes parties.", value: 3 },
+            { text: "Introduire des solutions technologiques adaptées.", value: 4 },
+            { text: "Fournir des analyses pour orienter les décisions.", value: 5 }
         ]
     },
     {
-        question: "Votre vision pour les RH dans 10 ans est :",
+        question: "Vous considérez que le principal atout d'une entreprise est :",
         answers: [
-            { text: "Des RH éthiques guidant les entreprises vers le bien commun.", value: 1 },
-            { text: "Des RH innovants en constante évolution.", value: 2 },
-            { text: "Des RH centrés sur la collaboration et l'humain.", value: 3 },
-            { text: "Des RH automatisés pour une efficacité maximale.", value: 4 },
-            { text: "Des RH prédictifs anticipant les besoins grâce aux données.", value: 5 }
+            { text: "Son engagement éthique.", value: 1 },
+            { text: "Sa capacité à innover.", value: 2 },
+            { text: "La force de sa collaboration interne.", value: 3 },
+            { text: "Son utilisation avancée de la technologie.", value: 4 },
+            { text: "Sa maîtrise des données et des analyses.", value: 5 }
         ]
     },
     {
-        question: "Vous devez représenter votre entreprise lors d'un salon. Vous :",
+        question: "Lors d'une formation, vous êtes le plus intéressé par :",
         answers: [
-            { text: "Mettez en avant nos engagements éthiques et responsables.", value: 1 },
-            { text: "Présentez nos innovations et projets créatifs.", value: 2 },
-            { text: "Organisez des activités interactives pour les visiteurs.", value: 3 },
-            { text: "Dévoilez nos dernières technologies RH.", value: 4 },
-            { text: "Partagez des analyses de marché pour montrer notre expertise.", value: 5 }
+            { text: "Les ateliers pratiques favorisant la collaboration.", value: 3 },
+            { text: "Les sessions sur les dernières tendances technologiques.", value: 4 },
+            { text: "Les discussions sur les dilemmes éthiques.", value: 1 },
+            { text: "Les activités stimulant la créativité.", value: 2 },
+            { text: "Les modules sur l'analyse de données avancée.", value: 5 }
         ]
     },
     {
-        question: "Pour un poste RH de demain, vous cherchez quelqu'un qui :",
+        question: "Votre méthode préférée pour résoudre un problème est :",
         answers: [
-            { text: "A une intégrité et une éthique irréprochables.", value: 1 },
-            { text: "Possède un esprit innovant et créatif.", value: 2 },
-            { text: "Est excellent en communication et en collaboration.", value: 3 },
-            { text: "Maîtrise les technologies et outils modernes.", value: 4 },
-            { text: "Excelle dans l'analyse de données pour la prise de décision.", value: 5 }
+            { text: "Rechercher des solutions innovantes et originales.", value: 2 },
+            { text: "Collaborer avec l'équipe pour trouver une solution commune.", value: 3 },
+            { text: "Utiliser des outils technologiques pour faciliter la résolution.", value: 4 },
+            { text: "Analyser toutes les données disponibles pour éclairer le choix.", value: 5 },
+            { text: "S'assurer que la solution est en accord avec les valeurs éthiques.", value: 1 }
         ]
     },
     {
-        question: "Vous imaginez un futur RH où :",
+        question: "Si vous deviez choisir un animal pour représenter votre style de travail, ce serait :",
         answers: [
-            { text: "L'éthique est au cœur de chaque décision.", value: 1 },
-            { text: "L'innovation drive les stratégies RH.", value: 2 },
-            { text: "La collaboration est le pilier central.", value: 3 },
-            { text: "La technologie simplifie toutes les tâches.", value: 4 },
-            { text: "Les données permettent d'anticiper les tendances.", value: 5 }
-        ]
-    },
-    {
-        question: "En cas de crise dans votre entreprise, vous :",
-        answers: [
-            { text: "Veillez au respect des principes éthiques dans les actions.", value: 1 },
-            { text: "Instaurez des solutions innovantes pour rebondir.", value: 2 },
-            { text: "Encouragez la communication pour résoudre les tensions.", value: 3 },
-            { text: "Mettez en place des outils pour gérer efficacement la crise.", value: 4 },
-            { text: "Analysez les données pour comprendre et agir.", value: 5 }
-        ]
-    },
-    {
-        question: "Pour recruter la future génération, vous misez sur :",
-        answers: [
-            { text: "Un discours transparent et éthique.", value: 1 },
-            { text: "Des campagnes innovantes et disruptives.", value: 2 },
-            { text: "Créer des liens authentiques avec les candidats.", value: 3 },
-            { text: "Utiliser des plateformes technologiques modernes.", value: 4 },
-            { text: "Cibler les candidats grâce à l'analyse de données.", value: 5 }
-        ]
-    },
-    {
-        question: "Si vous pouviez révolutionner un aspect des RH, ce serait :",
-        answers: [
-            { text: "Renforcer l'éthique dans toutes les pratiques RH.", value: 1 },
-            { text: "Introduire des innovations constantes.", value: 2 },
-            { text: "Développer une culture de collaboration accrue.", value: 3 },
-            { text: "Automatiser davantage pour gagner en efficacité.", value: 4 },
-            { text: "Utiliser les données pour transformer la prise de décision.", value: 5 }
+            { text: "Le dauphin, pour son intelligence et sa collaboration.", value: 3 },
+            { text: "Le hibou, symbole de sagesse et d'analyse.", value: 5 },
+            { text: "Le lion, leader courageux et éthique.", value: 1 },
+            { text: "Le singe, pour son ingéniosité et son innovation.", value: 2 },
+            { text: "Le guépard, rapide et agile grâce à la technologie.", value: 4 }
         ]
     }
 ];
-
-
+        // Reste du code JavaScript pour gérer le quiz
         let currentQuestionIndex = 0;
         const userAnswers = [];
 
@@ -517,6 +497,15 @@
         });
 
         function showQuestion() {
+            // Pour le moment, pas de questions à afficher
+            if (questions.length === 0) {
+                questionContainer.innerHTML = '<p>Aucune question disponible pour le moment.</p>';
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'none';
+                prevBtn.style.display = 'none';
+                return;
+            }
+
             const q = questions[currentQuestionIndex];
             questionContainer.innerHTML = `
                 <p class="question-text">Question ${currentQuestionIndex + 1}/${questions.length}: ${q.question}</p>
@@ -593,7 +582,7 @@
                 scores[profileKey]++;
             });
 
-            const totalQuestions = questions.length;
+            const totalQuestions = questions.length || 1; // Éviter division par zéro
             Object.keys(scores).forEach((key) => {
                 scores[key] = (scores[key] / totalQuestions) * 100;
             });
@@ -727,7 +716,7 @@
 
             // Ajouter le texte en bas du PDF
             pdf.setFontSize(12);
-            pdf.text("IDRH - @Igaël Derrida", 10, pdf.internal.pageSize.height - 10);
+            pdf.text("IDRH - Igaël Derrida", 10, pdf.internal.pageSize.height - 10);
 
             pdf.save("resultats_test_metiers_rh.pdf");
         }
